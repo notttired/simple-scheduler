@@ -22,7 +22,6 @@ typedef struct task {
     int tid;
     enum task_status status;
     ucontext_t* context;
-
     void (*op)(void*);
     void* arg;
 } task;
@@ -142,6 +141,9 @@ int main() {
     ucontext_t* main_ctx = initialize_context(nullptr);
 
     list* queue = (list*) malloc(sizeof(list));
+    queue->head = nullptr;
+    queue->tail = nullptr;
+    queue->length = 0;
 
     for (int i = 0; i < 100; ++i) {
         task* new_task = create_task(test, nullptr, main_ctx);
@@ -155,8 +157,11 @@ int main() {
             swapcontext(main_ctx, task->context);
             destroy_task(task);
         } else {
-            printf("Finished\n");
             break;
         }
     }
+
+    free(main_ctx);
+    destroy_list(queue);
+    printf("Finished\n");
 }
